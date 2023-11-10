@@ -24,7 +24,11 @@ set(SOURCE_FILES
 #     tests/CDRJournalTests.cpp
 # )
 
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 add_executable(CallCenterEmulation ${SOURCE_FILES})
+
+add_library(mongoose include/mongoose.c)
 
 add_library(jsonParser src/jsonParser/jsonParser.cpp)
 add_library(callProcessing src/callProcessing/callProcessing.cpp)
@@ -43,6 +47,7 @@ target_link_libraries(CallCenterEmulation
     logging
     utils
     CDRJournal
+    mongoose
 )
 
 # Связываем тесты с библиотеками
