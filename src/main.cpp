@@ -1,18 +1,15 @@
 #include <iostream>
-#include "../include/json.hpp"
 #include <fstream>
+#include "HTTPServ/HTTPServ.h"
+#pragma once
 
 using json = nlohmann::json;
 
 
 int main(int, char**){
-    std::cout << "START\n";
-    std::ifstream f("../config/test.json");
-    // json data = json::parse(f);   
-    auto j = nlohmann::json::parse(f);
-    // Вывод содержимого объекта
-    for (auto& element : j["name"]) {
-        std::cout << element << "\n";
-    } 
+    QueueConfig config = readConfigFromFile("config.json");
+    std::cout << "Queue Length: " << config.queueLength << std::endl;
+    std::cout << "Time Range: " << config.minProcessingTime << " - " << config.maxProcessingTime << std::endl;
+    std::cout << "Processing Duration: " << config.processingDuration << std::endl;
 }
 

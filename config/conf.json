@@ -1,0 +1,8 @@
+{
+    "queueLength": 10,
+    "timeRange": {
+      "min": 5,
+      "max": 20
+    },
+    "processingDuration": 10
+  }
