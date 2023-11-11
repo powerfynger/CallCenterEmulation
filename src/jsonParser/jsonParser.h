@@ -1,3 +1,5 @@
+#pragma once
+
 #define CONFIG_PATH "../config/conf.json"
 #include <fstream>
 
@@ -10,6 +12,7 @@ struct QueueConfig {
     int minProcessingTime;
     int maxProcessingTime;
     int processingDuration;
+    int maxOperatorsNum;
 };
 
 QueueConfig readConfigFromFile(const std::string& filename);

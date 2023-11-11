@@ -4,5 +4,6 @@
       "min": 5,
       "max": 20
     },
-    "processingDuration": 10
+    "processingDuration": 10,
+    "maxOperators": 4
   }

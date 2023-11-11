@@ -16,6 +16,7 @@ QueueConfig readConfigFromFile(const std::string& filename) {
         config.minProcessingTime = jsonData["timeRange"]["min"];
         config.maxProcessingTime = jsonData["timeRange"]["max"];
         config.processingDuration = jsonData["processingDuration"];
+        config.maxOperatorsNum = jsonData["maxOperators"];
     } catch (const json::exception& e) {
         throw std::runtime_error("Error parsing JSON: " + std::string(e.what()));
     }
