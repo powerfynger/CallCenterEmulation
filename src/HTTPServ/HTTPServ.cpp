@@ -23,10 +23,18 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
         return;
     }
     HttpRequest req;
-    req.callId = "1321";
     req.number = buf;
     // CDR
-    mainCallCenter->handleHttpRequest(req);
+    if(mainCallCenter->handleHttpRequest(req)){
+        mg_http_reply(c, 200, "", "{%m:%s}\n",
+            MG_ESC("Call id"), req.callId);
+        return;
+    }
+    else{
+        mg_http_reply(c, 200, "", "{%m}\n",
+            MG_ESC("Overload"));
+        return;
+    }
 
 }
 
@@ -39,6 +47,7 @@ void runHTTPServ(QueueConfig& conf){
     mg_http_listen(&mgr, "http://0.0.0.0:8000", handleInCall, arg);
     for (;;){
         mg_mgr_poll(&mgr, 1000);
+        mainCallCenter.processQueue();
     }
 }
 

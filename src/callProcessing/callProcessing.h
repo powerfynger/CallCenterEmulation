@@ -1,21 +1,25 @@
 #pragma once
 #include <iostream>
-#include <queue>
 #include <vector>
 #include <ctime>
 #include <cstdlib>
 #include <chrono>
 #include <thread>
-#include <poll.h>
+#include <algorithm>
 
 
-
+#include "../utils/utils.h"
 #include "../jsonParser/jsonParser.h"
 // #include "../HTTPServ/HTTPServ.h"
 
 struct HttpRequest {
     std::string number;
-    std::string callId; 
+    std::string callId;
+    std::chrono::time_point<std::chrono::steady_clock> timeOut;
+
+    bool operator==(const HttpRequest& other) const {
+        return other.callId == callId;
+    }
 };
 
 enum OperatorStatus {
@@ -40,12 +44,11 @@ public:
 
 class CallCenter {
 private:
-    std::queue<HttpRequest> callQueue; // Очередь вызовов
+    std::vector<HttpRequest> callQueue; // Очередь вызовов
     std::vector<Operator> operators; // Список операторов
     QueueConfig conf;
-
-
     int findFreeOperator();
+
 public:
     CallCenter(QueueConfig& conf)
         : conf(conf){
@@ -55,5 +58,9 @@ public:
     }
     CallCenter() {}
 
-    void handleHttpRequest(const HttpRequest& request);
+
+    bool handleHttpRequest(HttpRequest& request);
+    void addToQueue(HttpRequest& request);
+    void processQueue();
+    HttpRequest findHttpRequestByCallId(const std::string& targetCallId);
 };
