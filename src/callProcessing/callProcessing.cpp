@@ -24,9 +24,9 @@ void Operator::processCall(const HttpRequest &request)
 
 }
 
-HttpRequest CallCenter::findHttpRequestByCallId(const std::string& targetCallId) {
+HttpRequest CallCenter::findHttpRequestInQueue(HttpRequest& targetRequest) {
     for (const auto& request : callQueue) {
-        if (request.callId == targetCallId) {
+        if (request == targetRequest) {
             return request; // Найдено совпадение, возвращаем структуру HttpRequest
         }
     }
@@ -54,7 +54,7 @@ void CallCenter::addToQueue(HttpRequest &request){
     request.timeOut = endTime;
     while(true){
         request.callId = generateRandomString();
-        if (findHttpRequestByCallId(request.callId).callId.empty()){
+        if (findHttpRequestInQueue(request).callId.empty()){
             break;
         }
     }
@@ -79,13 +79,17 @@ void CallCenter::processQueue(){
             auto it = std::find(callQueue.begin(), callQueue.end(), request); 
             callQueue.erase(it);
             op.processCall(request);
+            break;
         }
         if (canProcessCall == false) break;
     }
 }
 
-bool CallCenter::handleHttpRequest(HttpRequest &request)
+HttpStatusCode CallCenter::handleHttpRequest(HttpRequest &request)
 {
+    if (!findHttpRequestInQueue(request).callId.empty()){
+        return TOO_MANY_REQUESTS;
+    }
     if (callQueue.size() < conf.queueLength)
     {
 
@@ -96,21 +100,21 @@ bool CallCenter::handleHttpRequest(HttpRequest &request)
         int freeOperatorIndex = findFreeOperator();
         if (freeOperatorIndex != -1)
         {
-            if (callQueue.empty()){
-                operators[freeOperatorIndex].processCall(request);
-                return true;
-            }
+            // if (callQueue.empty()){
+            //     operators[freeOperatorIndex].processCall(request);
+            //     return OK;
+            // }
             addToQueue(request);
             processQueue();
-            return true;
+            return OK;
         }
         addToQueue(request);
-        return true;
+        return OK;
     }
     else
     {
         // Отправляем HTTP ответ с отказом, так как очередь переполнена
         std::cout << "HTTP response sent for CallID " << request.callId << " (Queue is full)" << std::endl;
-        return false;
+        return SERVICE_UNAVALIABLE;
     }
 }

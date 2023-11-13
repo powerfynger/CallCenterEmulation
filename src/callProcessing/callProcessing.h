@@ -18,13 +18,21 @@ struct HttpRequest {
     std::chrono::time_point<std::chrono::steady_clock> timeOut;
 
     bool operator==(const HttpRequest& other) const {
-        return other.callId == callId;
+        return (other.callId == callId || other.number == number);
     }
 };
 
 enum OperatorStatus {
     FREE,
     BUSY
+};
+
+enum HttpStatusCode {
+    OK = 200,
+    BAD_REQUEST = 400,
+    TOO_MANY_REQUESTS = 429,
+    INTERNAL_SERVER_ERROR = 500,
+    SERVICE_UNAVALIABLE = 503
 };
 
 class Operator {
@@ -59,8 +67,8 @@ public:
     CallCenter() {}
 
 
-    bool handleHttpRequest(HttpRequest& request);
+    HttpStatusCode handleHttpRequest(HttpRequest& request);
     void addToQueue(HttpRequest& request);
     void processQueue();
-    HttpRequest findHttpRequestByCallId(const std::string& targetCallId);
+    HttpRequest findHttpRequestInQueue(HttpRequest& targetRequest);
 };
