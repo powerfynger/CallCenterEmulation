@@ -31,7 +31,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
         return;
     }
     else{
-        mg_http_reply(c, 200, "", "{%m}\n",
+        mg_http_reply(c, 503, "", "{%m}\n",
             MG_ESC("Overload"));
         return;
     }
