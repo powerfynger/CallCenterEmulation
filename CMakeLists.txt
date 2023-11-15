@@ -10,7 +10,7 @@ set(SOURCE_FILES
     src/jsonParser/jsonParser.cpp
     src/HTTPServ/HTTPServ.cpp
     src/callProcessing/callProcessing.cpp
-    src/logging/logger.cpp
+    # src/logging/logger.cpp
     src/utils/utils.cpp
 )
 
@@ -26,7 +26,7 @@ set(SOURCE_FILES
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -DELPP_NO_DEFAULT_LOG_FILE")
 
 add_executable(CallCenterEmulation ${SOURCE_FILES})
 
@@ -35,7 +35,7 @@ add_library(CDRJournal src/CDRJournal/CDRJournal.cpp)
 add_library(jsonParser src/jsonParser/jsonParser.cpp)
 add_library(HTTPServ src/HTTPServ/HTTPServ.cpp)
 add_library(callProcessing src/callProcessing/callProcessing.cpp)
-add_library(logging src/logging/logger.cpp)
+# add_library(logging src/logging/logger.cpp)
 add_library(utils src/utils/utils.cpp)
 
 # add_executable(tests ${TEST_FILES})
@@ -46,7 +46,7 @@ target_link_libraries(CallCenterEmulation
     jsonParser
     HTTPServ
     callProcessing
-    logging
+    # logging
     utils
     mongoose
 )

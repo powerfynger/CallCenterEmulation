@@ -2,17 +2,18 @@
 // #include "callProcessing/callProcessing.h"
 #include "HTTPServ/HTTPServ.h"
 
+INITIALIZE_EASYLOGGINGPP
 
+int main(int, char **)
+{
+  el::Configurations defaultConf;
 
-int main(int, char**){
+  defaultConf.setToDefault();
+  defaultConf.setGlobally(el::ConfigurationType::Filename, "logs/CallCenter.log");
+  el::Loggers::reconfigureLogger("default", defaultConf);
+
   QueueConfig config = readConfigFromFile(CONFIG_PATH);
-  // std::cout << "Queue Length: " << config.queueLength << std::endl;
-  // std::cout << "Time Range: " << config.minProcessingTime << " - " << config.maxProcessingTime << std::endl;
-  // std::cout << "Processing Duration: " << config.processingDuration << std::endl;
-  
   runHTTPServ(config);
-
 
   return 0;
 }
-

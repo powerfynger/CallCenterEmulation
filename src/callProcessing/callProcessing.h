@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <iomanip>
 
-
+#include "../../include/easylogging++.h"
 #include "../CDRJournal/CDRJournal.h"
 #include "../jsonParser/jsonParser.h"
 // #include "../HTTPServ/HTTPServ.h"

@@ -6,6 +6,7 @@
 #include <chrono>
 #include <string>
 #include <mutex>
+#include "../../include/easylogging++.h"
 
 const std::string cdrLogFileName = "../cdrLog.txt";
 

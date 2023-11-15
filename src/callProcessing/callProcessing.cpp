@@ -13,7 +13,8 @@ OperatorStatus Operator::getOperatorStatus(){
 void Operator::processCall(HttpRequest &request)
 {
     status = BUSY;
-    std::cout << "Operator " << operatorId << " is processing call with CallID " << request.callId << std::endl;
+    // std::cout << "Operator " << operatorId << " is processing call with CallID " << request.callId << std::endl;
+    LOG(INFO) << "Operator " << operatorId << " is processing call with CallID " << request.callId;
 
     auto sharedRequest = std::make_shared<HttpRequest>(request);
 
@@ -21,7 +22,8 @@ void Operator::processCall(HttpRequest &request)
     // Создаем поток для асинхронной обработки вызова
     std::thread([this, sharedRequest]() {
         std::this_thread::sleep_for(std::chrono::seconds(processingTime));
-        std::cout << "Operator " << operatorId << " finished processing call with CallID " << sharedRequest->callId << std::endl;
+        // std::cout << "Operator " << operatorId << " finished processing call with CallID " << sharedRequest->callId << std::endl;
+        LOG(INFO) << "Operator " << operatorId << " finished processing call with CallID " << sharedRequest->callId;
         // request
         sharedRequest->record.operatorId = operatorId;
         sharedRequest->record.operatorResponseTime = std::chrono::system_clock::now();
@@ -72,7 +74,8 @@ void CallCenter::processQueue(){
             auto it = std::find(callQueue.begin(), callQueue.end(), request); 
             callQueue.erase(it);
 
-            std::cout << "Call with CallID " << request.callId << " ended with timeout" << std::endl;
+            // std::cout << "Call with CallID " << request.callId << " ended with timeout" << std::endl;
+            LOG(INFO) << "Call with CallID " << request.callId << " ended with timeout";
 
             // CDR
             request.record.number = request.number;
@@ -104,7 +107,9 @@ HttpStatusCode CallCenter::handleHttpRequest(HttpRequest &request)
     {
 
         // Отправляем HTTP ответ с CallID
-        std::cout << "HTTP response sent for CallID " << request.callId << std::endl;
+        // std::cout << "HTTP response sent for CallID " << request.callId << std::endl;
+        LOG(INFO) << "HTTP response sent for CallID " << request.callId;
+
 
         // Пытаемся распределить вызов на свободного оператора
         int freeOperatorIndex = findFreeOperator();
@@ -120,7 +125,9 @@ HttpStatusCode CallCenter::handleHttpRequest(HttpRequest &request)
     else
     {
         // Отправляем HTTP ответ с отказом, так как очередь переполнена
-        std::cout << "HTTP response sent for CallID " << request.callId << " (Queue is full)" << std::endl;
+        // std::cout << "HTTP response sent for CallID " << request.callId << " (Queue is full)" << std::endl;
+        LOG(INFO) << "HTTP response sent for CallID " << request.callId << " (Queue is full)";
+
         return SERVICE_UNAVALIABLE;
     }
 }

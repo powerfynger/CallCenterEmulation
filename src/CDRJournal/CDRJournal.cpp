@@ -36,7 +36,8 @@ void CallDetailRecord::writeCDRToFile()
     }
     else
     {
-        std::cerr << "Unable to open file for writing CDR.\n";
+        // std::cerr << "Unable to open file for writing CDR.\n";
+        LOG(WARNING) << "Unable to open file for writing CDR: " << cdrLogFileName;
     }
 }
 

@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "../../include/json.hpp"
+#include "../../include/easylogging++.h"
 
 using json = nlohmann::json;
 

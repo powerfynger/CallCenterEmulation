@@ -2,18 +2,23 @@
 
 static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
 {
-    char buf[100] = "";
+    char buf[100] = "", sender_ip[20] = "";
     HttpRequest req;
     // CDR
     req.record.arrivalTime = std::chrono::system_clock::now();
 
     CallCenter *mainCallCenter = static_cast<CallCenter *>(fn_data);
 
-    if (ev != MG_EV_HTTP_MSG)
+    if (ev != MG_EV_HTTP_MSG){
+
         return;
+    }
+    mg_snprintf(sender_ip, sizeof(sender_ip), "%M", mg_print_ip, &c->rem.ip);
     struct mg_http_message *hm = (struct mg_http_message *)ev_data;
-    if (!mg_http_match_uri(hm, "/call"))
+    if (!mg_http_match_uri(hm, "/call")){
+        LOG(INFO) << "Recieved not call from " << sender_ip;
         return;
+    }
     int getVarSuccess = mg_http_get_var(&hm->query, "number", buf, sizeof(buf));
 
     if (!getVarSuccess)
@@ -21,6 +26,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
         mg_http_reply(c, BAD_REQUEST, "", "{%m}\n",
                       MG_ESC("Incorrect request"));
         
+        LOG(INFO) << "Incorrect request from " << sender_ip;
         // CDR
         req.record.endTime = std::chrono::system_clock::now();
         req.record.setStatus(static_cast<int>(BAD_REQUEST));
@@ -32,6 +38,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
         mg_http_reply(c, BAD_REQUEST, "", "{%m:%s}\n",
                       MG_ESC("Incorrect number"), buf);
         
+        LOG(INFO) << "Incorrect number from " << sender_ip;
         // CDR
         req.record.endTime = std::chrono::system_clock::now();
         req.record.setStatus(static_cast<int>(BAD_REQUEST));
@@ -85,7 +92,15 @@ void runHTTPServ(QueueConfig &conf)
 
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
-    mg_http_listen(&mgr, "http://0.0.0.0:8000", handleInCall, arg);
+
+    if (&mgr == NULL){
+        LOG(FATAL) << "Failed to start listen on port 8000";
+        exit(EXIT_FAILURE);
+    }
+    if(mg_http_listen(&mgr, "http://0.0.0.0:8000", handleInCall, arg) == NULL){
+        LOG(FATAL) << "Failed to start listen on port 8000";
+        exit(EXIT_FAILURE);
+    }
     for (;;)
     {
         mg_mgr_poll(&mgr, 1000);

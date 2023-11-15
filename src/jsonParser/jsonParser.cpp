@@ -3,7 +3,8 @@
 QueueConfig readConfigFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        throw std::runtime_error("Unable to open file: " + filename);
+        // throw std::runtime_error("Unable to open file: " + filename);
+        LOG(FATAL) << "Failed to open file: " << filename;
     }
 
     json jsonData;
@@ -18,7 +19,7 @@ QueueConfig readConfigFromFile(const std::string& filename) {
         config.processingDuration = jsonData["processingDuration"];
         config.maxOperatorsNum = jsonData["maxOperators"];
     } catch (const json::exception& e) {
-        throw std::runtime_error("Error parsing JSON: " + std::string(e.what()));
+        LOG(FATAL) << "Error parsing config file.";
     }
 
     return config;
