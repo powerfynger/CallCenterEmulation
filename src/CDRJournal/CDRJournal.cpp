@@ -1,36 +1,37 @@
 #include "CDRJournal.h"
 
-void CallDetailRecord::setFromHttpRequest(const HttpRequest& request)
+// void CallDetailRecord::setFromHttpRequest(HttpRequest& request)
+// {
+//     number = request.number;
+//     callId = request.callId;
+// }
+std::mutex fileMutex;
+
+void CallDetailRecord::setStatus(int setStatusCode)
 {
-    arrivalTime = std::chrono::system_clock::now();
-    callId = request.callId;
+    status = setStatusCode;
 }
 
-void CallDetailRecord::setEndTimeAndStatus(const std::string& callStatus)
+void CallDetailRecord::setOperatorResponse(int operatorIdResponse)
 {
-    endTime = std::chrono::system_clock::now();
-    status = callStatus;
-}
-
-void CallDetailRecord::setOperatorResponse(const std::string& operatorIdResponse)
-{
-    operatorResponseTime = std::chrono::system_clock::now();
     operatorId = operatorIdResponse;
 }
 
 void CallDetailRecord::writeCDRToFile()
 {
+    std::lock_guard<std::mutex> lock(fileMutex);
+
     std::ofstream file(cdrLogFileName, std::ios_base::app);
     if (file.is_open())
     {
-        duration = std::chrono::duration_cast<std::chrono::seconds>(endTime - arrivalTime);
         file << formatDateTime(arrivalTime) << ';'
                 << callId << ';'
                 << formatDateTime(endTime) << ';'
                 << status << ';'
-                << formatDateTime(operatorResponseTime) << ';'
-                << operatorId << ';'
-                << duration.count() << '\n';
+                << (operatorResponseTime != std::chrono::system_clock::time_point::min() 
+                ? formatDateTime(operatorResponseTime) : "") << ';'
+                << (operatorId != -1 ? std::to_string(operatorId) : "") << ';'
+                << (duration != -1 ? std::to_string(duration) : "") << ";\n";
         file.close();
     }
     else

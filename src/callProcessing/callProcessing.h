@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CALLPROCESSING_H
+#define CALLPROCESSING_H
+
 #include <iostream>
 #include <vector>
 #include <ctime>
@@ -9,18 +11,20 @@
 #include <iomanip>
 
 
-#include "../utils/utils.h"
-#include "../jsonParser/jsonParser.h"
 #include "../CDRJournal/CDRJournal.h"
+#include "../jsonParser/jsonParser.h"
 // #include "../HTTPServ/HTTPServ.h"
+
+// class CallDetailRecord;
 
 struct HttpRequest {
     std::string number;
     std::string callId;
     std::chrono::time_point<std::chrono::steady_clock> timeOut;
+    CallDetailRecord record;
 
     bool operator==(const HttpRequest& other) const {
-        return (other.callId == callId || other.number == number);
+        return (other.number == number);
     }
 };
 
@@ -32,6 +36,7 @@ enum OperatorStatus {
 enum HttpStatusCode {
     OK = 200,
     BAD_REQUEST = 400,
+    REQUEST_TIMEOUT = 408,
     TOO_MANY_REQUESTS = 429,
     INTERNAL_SERVER_ERROR = 500,
     SERVICE_UNAVALIABLE = 503
@@ -47,7 +52,7 @@ public:
 
     Operator(int id, int procTime) : operatorId(id), processingTime(procTime), status(FREE) {}
 
-    void processCall(const HttpRequest& request);
+    void processCall(HttpRequest& request);
     int getOperatorId();
     OperatorStatus getOperatorStatus();
 };
@@ -74,3 +79,4 @@ public:
     void processQueue();
     HttpRequest findHttpRequestInQueue(HttpRequest& targetRequest);
 };
+#endif

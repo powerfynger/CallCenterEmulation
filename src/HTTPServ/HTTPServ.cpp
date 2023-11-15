@@ -2,6 +2,11 @@
 
 static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
 {
+    char buf[100] = "";
+    HttpRequest req;
+    // CDR
+    req.record.arrivalTime = std::chrono::system_clock::now();
+
     CallCenter *mainCallCenter = static_cast<CallCenter *>(fn_data);
 
     if (ev != MG_EV_HTTP_MSG)
@@ -9,50 +14,72 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
     struct mg_http_message *hm = (struct mg_http_message *)ev_data;
     if (!mg_http_match_uri(hm, "/call"))
         return;
-    char buf[100] = "";
     int getVarSuccess = mg_http_get_var(&hm->query, "number", buf, sizeof(buf));
 
     if (!getVarSuccess)
     {
-        // CDR
         mg_http_reply(c, BAD_REQUEST, "", "{%m}\n",
                       MG_ESC("Incorrect request"));
+        
+        // CDR
+        req.record.endTime = std::chrono::system_clock::now();
+        req.record.setStatus(static_cast<int>(BAD_REQUEST));
+        req.record.writeCDRToFile();
         return;
     }
     if (strlen(buf) > 15)
     {
-        // CDR
         mg_http_reply(c, BAD_REQUEST, "", "{%m:%s}\n",
                       MG_ESC("Incorrect number"), buf);
+        
+        // CDR
+        req.record.endTime = std::chrono::system_clock::now();
+        req.record.setStatus(static_cast<int>(BAD_REQUEST));
+        req.record.writeCDRToFile();
         return;
     }
-    HttpRequest req;
     req.number = buf;
-    // CDR
+    req.callId = generateRandomString();
+    req.record.callId = req.callId;
+
     switch (mainCallCenter->handleHttpRequest(req))
     {
     case OK:
         mg_http_reply(c, OK, "", "{%m:%s}\n",
-                      MG_ESC("Call id"), req.callId);
+                      MG_ESC("Call id"), req.callId.c_str());
+        // CDR
+        req.record.number = req.number;
         break;
     case TOO_MANY_REQUESTS:
-        mg_http_reply(c, TOO_MANY_REQUESTS, "", "{%m}\n",
-                      MG_ESC("Alredy in queue"));
-        break;
-    case INTERNAL_SERVER_ERROR:
-        /* TODO */
+        mg_http_reply(c, TOO_MANY_REQUESTS, "", "{%m}:%s\n",
+                      MG_ESC("Alredy in queue"), req.callId.c_str());
+        
+        // CDR
+        req.record.endTime = std::chrono::system_clock::now();
+        req.record.number = req.number;
+        req.record.setStatus(static_cast<int>(TOO_MANY_REQUESTS));
+        req.record.writeCDRToFile();
         break;
     case SERVICE_UNAVALIABLE:
-        mg_http_reply(c, 503, "", "{%m}\n",
-                      MG_ESC("Overload"));
+        mg_http_reply(c, SERVICE_UNAVALIABLE, "", "{%m}:%s\n",
+                      MG_ESC("Overload"), req.callId.c_str());
+        
+        // CDR
+        req.record.endTime = std::chrono::system_clock::now();
+        req.record.number = req.number;
+        req.record.setStatus(static_cast<int>(SERVICE_UNAVALIABLE));
+        req.record.writeCDRToFile();
         break;
     default:
+        mg_http_reply(c, INTERNAL_SERVER_ERROR, "", "{%m}:%s\n",
+                      MG_ESC("Error"), req.callId.c_str());
         break;
     }
 }
 
 void runHTTPServ(QueueConfig &conf)
 {
+    std::srand(std::time(0));
     CallCenter mainCallCenter(conf);
     void *arg = static_cast<void *>(&mainCallCenter);
 
