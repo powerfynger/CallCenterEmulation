@@ -44,13 +44,14 @@ enum HttpStatusCode {
 
 class Operator {
 private:
-    int operatorId;
-    OperatorStatus status;
+    int _operatorId;
+    bool _writeLogs;
+    OperatorStatus _status;
 
 public:
     int processingTime;
 
-    Operator(int id, int procTime) : operatorId(id), processingTime(procTime), status(FREE) {}
+    Operator(int id, int procTime, bool writeLogs) : _operatorId(id), processingTime(procTime), _status(FREE), _writeLogs(writeLogs) {}
 
     void processCall(HttpRequest& request);
     int getOperatorId();
@@ -59,16 +60,16 @@ public:
 
 class CallCenter {
 private:
-    std::vector<HttpRequest> callQueue; // Очередь вызовов
-    std::vector<Operator> operators; // Список операторов
-    QueueConfig conf;
-    int findFreeOperator();
+    std::vector<HttpRequest> _callQueue; // Очередь вызовов
+    std::vector<Operator> _operators; // Список операторов
+    QueueConfig _conf;
+    bool _writeLogs;
 
 public:
-    CallCenter(QueueConfig& conf)
-        : conf(conf){
+    CallCenter(QueueConfig& conf, bool writeLogs)
+        : _conf(conf), _writeLogs(writeLogs){
         for (int i = 1; i <= conf.maxOperatorsNum; ++i) {
-            operators.push_back(Operator(i, conf.processingDuration));
+            _operators.push_back(Operator(i, conf.processingDuration, writeLogs));
         }
     }
     CallCenter() {}
@@ -76,7 +77,10 @@ public:
 
     HttpStatusCode handleHttpRequest(HttpRequest& request);
     void addToQueue(HttpRequest& request);
+    unsigned int getQueueSize();
     void processQueue();
+    void addOperator(Operator& op);
+    int findFreeOperator();
     HttpRequest findHttpRequestInQueue(HttpRequest& targetRequest);
 };
 #endif

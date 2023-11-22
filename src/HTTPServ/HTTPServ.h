@@ -10,6 +10,5 @@
 // #include "../CDRJournal/CDRJournal.h"
 
 
-
-void runHTTPServ(QueueConfig& conf);
+void runHTTPServ(QueueConfig& conf, bool writeLogs);
 #endif

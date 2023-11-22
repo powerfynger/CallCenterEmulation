@@ -4,8 +4,12 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-int main(int, char **)
+int main(int argc, char** argv)
 {
+  bool enableLogs;
+  if (argc >= 3 && strcmp(argv[1], "-l") == 0) {
+    enableLogs = atoi(argv[2]);
+  }
   el::Configurations defaultConf;
 
   defaultConf.setToDefault();
@@ -13,7 +17,7 @@ int main(int, char **)
   el::Loggers::reconfigureLogger("default", defaultConf);
 
   QueueConfig config = readConfigFromFile(CONFIG_PATH);
-  runHTTPServ(config);
+  runHTTPServ(config, enableLogs);
 
   return 0;
 }

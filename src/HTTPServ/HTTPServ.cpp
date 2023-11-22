@@ -1,5 +1,7 @@
 #include "HTTPServ.h"
 
+bool* writeLogsPtr;
+
 static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
 {
     char buf[100] = "", sender_ip[20] = "";
@@ -16,7 +18,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
     mg_snprintf(sender_ip, sizeof(sender_ip), "%M", mg_print_ip, &c->rem.ip);
     struct mg_http_message *hm = (struct mg_http_message *)ev_data;
     if (!mg_http_match_uri(hm, "/call")){
-        LOG(INFO) << "Recieved not call from " << sender_ip;
+        LOG_IF(*writeLogsPtr, INFO) << "Recieved not call from " << sender_ip;
         return;
     }
     int getVarSuccess = mg_http_get_var(&hm->query, "number", buf, sizeof(buf));
@@ -26,7 +28,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
         mg_http_reply(c, BAD_REQUEST, "", "{%m}\n",
                       MG_ESC("Incorrect request"));
         
-        LOG(INFO) << "Incorrect request from " << sender_ip;
+        LOG_IF(*writeLogsPtr, INFO) << "Incorrect request from " << sender_ip;
         // CDR
         req.record.endTime = std::chrono::system_clock::now();
         req.record.setStatus(static_cast<int>(BAD_REQUEST));
@@ -38,7 +40,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
         mg_http_reply(c, BAD_REQUEST, "", "{%m:%s}\n",
                       MG_ESC("Incorrect number"), buf);
         
-        LOG(INFO) << "Incorrect number from " << sender_ip;
+        LOG_IF(*writeLogsPtr, INFO) << "Incorrect number from " << sender_ip;
         // CDR
         req.record.endTime = std::chrono::system_clock::now();
         req.record.setStatus(static_cast<int>(BAD_REQUEST));
@@ -84,21 +86,22 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
     }
 }
 
-void runHTTPServ(QueueConfig &conf)
+void runHTTPServ(QueueConfig &conf, bool writeLogs)
 {
     std::srand(std::time(0));
-    CallCenter mainCallCenter(conf);
+    *writeLogsPtr = writeLogs;
+    CallCenter mainCallCenter(conf, writeLogs);
     void *arg = static_cast<void *>(&mainCallCenter);
 
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
 
     if (&mgr == NULL){
-        LOG(FATAL) << "Failed to start listen on port 8000";
+        LOG_IF(writeLogs, FATAL) << "Failed to start listen on port 8000";
         exit(EXIT_FAILURE);
     }
     if(mg_http_listen(&mgr, "http://0.0.0.0:8000", handleInCall, arg) == NULL){
-        LOG(FATAL) << "Failed to start listen on port 8000";
+        LOG_IF(writeLogs, FATAL) << "Failed to start listen on port 8000";
         exit(EXIT_FAILURE);
     }
     for (;;)
