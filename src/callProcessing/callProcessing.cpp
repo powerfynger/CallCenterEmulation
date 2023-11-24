@@ -79,6 +79,17 @@ void CallCenter::addToQueue(HttpRequest &request)
     _callQueue.push_back(request);
 }
 
+void CallCenter::deleteFromQueue(HttpRequest& request)
+{
+    HttpRequest requestToDelete = findHttpRequestInQueue(request);
+    if (!requestToDelete.number.empty())
+    {
+        auto it = std::find(_callQueue.begin(), _callQueue.end(), request);
+        _callQueue.erase(it);
+    }
+}
+
+
 void CallCenter::processQueue()
 {
     auto now = std::chrono::steady_clock::now();

@@ -74,6 +74,7 @@ public:
     }
     CallCenter() {}
 
+    void deleteFromQueue(HttpRequest& request);
 
     HttpStatusCode handleHttpRequest(HttpRequest& request);
     void addToQueue(HttpRequest& request);
