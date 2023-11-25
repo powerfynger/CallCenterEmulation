@@ -1,6 +1,6 @@
 #include "HTTPServ.h"
 
-bool* writeLogsPtr;
+bool writeLogsPtr;
 
 static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
 {
@@ -18,7 +18,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
     mg_snprintf(sender_ip, sizeof(sender_ip), "%M", mg_print_ip, &c->rem.ip);
     struct mg_http_message *hm = (struct mg_http_message *)ev_data;
     if (!mg_http_match_uri(hm, "/call")){
-        LOG_IF(*writeLogsPtr, INFO) << "Recieved not call from " << sender_ip;
+        LOG_IF(writeLogsPtr, INFO) << "Recieved not call from " << sender_ip;
         return;
     }
     int getVarSuccess = mg_http_get_var(&hm->query, "number", buf, sizeof(buf));
@@ -28,7 +28,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
         mg_http_reply(c, BAD_REQUEST, "", "{%m}\n",
                       MG_ESC("Incorrect request"));
         
-        LOG_IF(*writeLogsPtr, INFO) << "Incorrect request from " << sender_ip;
+        LOG_IF(writeLogsPtr, INFO) << "Incorrect request from " << sender_ip;
         // CDR
         req.record.endTime = std::chrono::system_clock::now();
         req.record.setStatus(static_cast<int>(BAD_REQUEST));
@@ -40,7 +40,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
         mg_http_reply(c, BAD_REQUEST, "", "{%m:%s}\n",
                       MG_ESC("Incorrect number"), buf);
         
-        LOG_IF(*writeLogsPtr, INFO) << "Incorrect number from " << sender_ip;
+        LOG_IF(writeLogsPtr, INFO) << "Incorrect number from " << sender_ip;
         // CDR
         req.record.endTime = std::chrono::system_clock::now();
         req.record.setStatus(static_cast<int>(BAD_REQUEST));
@@ -89,7 +89,7 @@ static void handleInCall(struct mg_connection *c, int ev, void *ev_data, void *f
 void runHTTPServ(QueueConfig &conf, bool writeLogs)
 {
     std::srand(std::time(0));
-    *writeLogsPtr = writeLogs;
+    writeLogsPtr = writeLogs;
     CallCenter mainCallCenter(conf, writeLogs);
     void *arg = static_cast<void *>(&mainCallCenter);
 

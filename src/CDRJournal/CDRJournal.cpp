@@ -1,10 +1,6 @@
 #include "CDRJournal.h"
 
-// void CallDetailRecord::setFromHttpRequest(HttpRequest& request)
-// {
-//     number = request.number;
-//     callId = request.callId;
-// }
+
 std::mutex fileMutex;
 
 void CallDetailRecord::setStatus(int setStatusCode)

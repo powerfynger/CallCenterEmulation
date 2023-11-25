@@ -7,7 +7,6 @@ std::string generateRandomString() {
     std::string randomString;
 
     for (int i = 0; i < length; ++i) {
-        // Генерация случайного индекса для выбора цифры из массива digits
         int randomIndex = std::rand() % (sizeof(digits) - 1);
         randomString += digits[randomIndex];
     }

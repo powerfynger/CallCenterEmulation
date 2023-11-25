@@ -8,7 +8,7 @@
 #include <mutex>
 #include "../../include/easylogging++.h"
 
-const std::string cdrLogFileName = "../cdrLog.txt";
+const std::string cdrLogFileName = "../logs/cdrLog.txt";
 
 
 class CallDetailRecord

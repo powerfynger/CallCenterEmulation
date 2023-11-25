@@ -3,7 +3,6 @@
 QueueConfig readConfigFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        // throw std::runtime_error("Unable to open file: " + filename);
         LOG(FATAL) << "Failed to open file: " << filename;
     }
 

@@ -17,13 +17,11 @@ void Operator::processCall(HttpRequest &request)
 
     auto sharedRequest = std::make_shared<HttpRequest>(request);
 
-    // Создаем поток для асинхронной обработки вызова
     std::thread([this, sharedRequest]()
                 {
         std::this_thread::sleep_for(std::chrono::seconds(processingTime));
         // std::cout << "Operator " << operatorId << " finished processing call with CallID " << sharedRequest->callId << std::endl;
         LOG_IF(_writeLogs, INFO) << "Operator " << _operatorId << " finished processing call with CallID " << sharedRequest->callId;
-        // request
         sharedRequest->record.operatorId = _operatorId;
         sharedRequest->record.operatorResponseTime = std::chrono::system_clock::now();
         sharedRequest->record.duration = processingTime;
@@ -45,7 +43,7 @@ HttpRequest CallCenter::findHttpRequestInQueue(HttpRequest &targetRequest)
     {
         if (request == targetRequest)
         {
-            return request; // Найдено совпадение, возвращаем структуру HttpRequest
+            return request;
         }
     }
     return HttpRequest{};
@@ -137,11 +135,9 @@ HttpStatusCode CallCenter::handleHttpRequest(HttpRequest &request)
     if (_callQueue.size() < _conf.queueLength)
     {
 
-        // Отправляем HTTP ответ с CallID
         // std::cout << "HTTP response sent for CallID " << request.callId << std::endl;
         LOG_IF(_writeLogs, INFO) << "HTTP response sent for CallID " << request.callId;
 
-        // Пытаемся распределить вызов на свободного оператора
         int freeOperatorIndex = findFreeOperator();
         if (freeOperatorIndex != -1)
         {
@@ -154,7 +150,6 @@ HttpStatusCode CallCenter::handleHttpRequest(HttpRequest &request)
     }
     else
     {
-        // Отправляем HTTP ответ с отказом, так как очередь переполнена
         // std::cout << "HTTP response sent for CallID " << request.callId << " (Queue is full)" << std::endl;
         LOG_IF(_writeLogs, INFO) << "HTTP response sent for CallID " << request.callId << " (Queue is full)";
 

@@ -13,9 +13,6 @@
 #include "../../include/easylogging++.h"
 #include "../CDRJournal/CDRJournal.h"
 #include "../jsonParser/jsonParser.h"
-// #include "../HTTPServ/HTTPServ.h"
-
-// class CallDetailRecord;
 
 struct HttpRequest {
     std::string number;
@@ -60,8 +57,8 @@ public:
 
 class CallCenter {
 private:
-    std::vector<HttpRequest> _callQueue; // Очередь вызовов
-    std::vector<Operator> _operators; // Список операторов
+    std::vector<HttpRequest> _callQueue;
+    std::vector<Operator> _operators;
     QueueConfig _conf;
     bool _writeLogs;
 

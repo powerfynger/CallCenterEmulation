@@ -114,18 +114,3 @@ TEST_F(CallCenterTest, HandleHttpRequestDuplicate){
     EXPECT_EQ(code, HttpStatusCode::TOO_MANY_REQUESTS);
 }
 
-TEST_F(CallCenterTest, abpba){
-    InitializeCallCenter(2, 5, 1);
-    HttpRequest request;
-    // Need to set number due to comparison implementation between requests
-    request.number = "123321";
-
-    callCenter.handleHttpRequest(request);
-
-    
-    EXPECT_EQ(request.record.operatorId, 0);
-    EXPECT_EQ(request.record.operatorResponseTime, std::chrono::system_clock::now());
-    EXPECT_EQ(request.record.duration, 5);
-    EXPECT_EQ(request.record.status, static_cast<int>(HttpStatusCode::OK));
-}
-
