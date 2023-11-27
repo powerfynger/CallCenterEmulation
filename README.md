@@ -6,6 +6,7 @@ Here is a request example:
 http://192.168.0.65:8000/call?number=91123
 ```
 
+To run a system flag -l can be used to enable info logs.
 ## Components
 The following are the key components of the system:
 
@@ -26,6 +27,7 @@ The behavior of the system can be configured using a JSON configuration file. Th
 * `timeRange`: The minimum and maximum amount of time in seconds required to process a call.
 * `processingDuration`: The average amount of time in seconds required to process a call.
 * `maxOperators`: The maximum number of operators allowed in the system.
+* `denyDuplicate`: "Indicates whether to deny duplicate request or replace old one.
 
 Here is an example configuration file:
 ```json
@@ -36,7 +38,8 @@ Here is an example configuration file:
     "max": 120
   },
   "processingDuration": 90,
-  "maxOperators": 4
+  "maxOperators": 4,
+  "denyDuplicate": false
 }
 ```
 ## Testing
