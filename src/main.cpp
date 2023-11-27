@@ -10,7 +10,6 @@ int main(int argc, char** argv)
     enableLogs = atoi(argv[2]);
   }
   el::Configurations defaultConf;
-
   defaultConf.setToDefault();
   defaultConf.setGlobally(el::ConfigurationType::Filename, "logs/CallCenter.log");
   el::Loggers::reconfigureLogger("default", defaultConf);

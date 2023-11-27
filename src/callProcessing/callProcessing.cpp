@@ -129,10 +129,13 @@ HttpStatusCode CallCenter::handleHttpRequest(HttpRequest &request)
     HttpRequest duplicate = findHttpRequestInQueue(request);
     if (!duplicate.number.empty())
     {
-        request = duplicate;
-        return TOO_MANY_REQUESTS;
+        if (_conf.denyDuplicate){
+            request = duplicate;
+            return TOO_MANY_REQUESTS;
+        }
+        deleteFromQueue(duplicate);
     }
-    if (_callQueue.size() < _conf.queueLength)
+    if (_callQueue.size() < _conf.queueLength - 1)
     {
 
         // std::cout << "HTTP response sent for CallID " << request.callId << std::endl;

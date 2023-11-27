@@ -14,6 +14,7 @@ struct QueueConfig {
     int maxProcessingTime;
     int processingDuration;
     int maxOperatorsNum;
+    bool denyDuplicate;
 };
 
 QueueConfig readConfigFromFile(const std::string& filename);

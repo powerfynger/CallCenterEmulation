@@ -17,6 +17,7 @@ QueueConfig readConfigFromFile(const std::string& filename) {
         config.maxProcessingTime = jsonData["timeRange"]["max"];
         config.processingDuration = jsonData["processingDuration"];
         config.maxOperatorsNum = jsonData["maxOperators"];
+        config.denyDuplicate = jsonData["denyDuplicate"];
     } catch (const json::exception& e) {
         LOG(FATAL) << "Error parsing config file.";
     }
