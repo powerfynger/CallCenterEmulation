@@ -14,7 +14,13 @@ const std::string cdrLogFileName = "../logs/cdrLog.txt";
 class CallDetailRecord
 {
 public:
+    CallDetailRecord();
 
+    void setStatus(int setStatusCode);
+
+    void setOperatorResponse(int operatorIdResponse);
+
+    void writeCDRToFile();
     std::chrono::system_clock::time_point arrivalTime;
     std::string callId;
     std::string number;
@@ -24,15 +30,7 @@ public:
     int operatorId = -1;
     int duration = -1;
 
-    CallDetailRecord() {};
-
-    void setStatus(int setStatusCode);
-
-    void setOperatorResponse(int operatorIdResponse);
-
-    void writeCDRToFile();
-
 private:
-    std::string formatDateTime(const std::chrono::system_clock::time_point& time);
+    std::string _formatDateTime(const std::chrono::system_clock::time_point& time);
 };
 // #endif

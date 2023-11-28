@@ -1,7 +1,9 @@
 #include "CDRJournal.h"
 
+CallDetailRecord::CallDetailRecord()
+{
+}
 
-std::mutex fileMutex;
 
 void CallDetailRecord::setStatus(int setStatusCode)
 {
@@ -15,29 +17,18 @@ void CallDetailRecord::setOperatorResponse(int operatorIdResponse)
 
 void CallDetailRecord::writeCDRToFile()
 {
-    std::lock_guard<std::mutex> lock(fileMutex);
-
-    std::ofstream file(cdrLogFileName, std::ios_base::app);
-    if (file.is_open())
-    {
-        file << formatDateTime(arrivalTime) << ';'
+    CLOG(INFO, "cdrLogger")
+                << _formatDateTime(arrivalTime) << ';'
                 << callId << ';'
-                << formatDateTime(endTime) << ';'
+                << _formatDateTime(endTime) << ';'
                 << status << ';'
                 << (operatorResponseTime != std::chrono::system_clock::time_point::min() 
-                ? formatDateTime(operatorResponseTime) : "") << ';'
+                ? _formatDateTime(operatorResponseTime) : "") << ';'
                 << (operatorId != -1 ? std::to_string(operatorId) : "") << ';'
-                << (duration != -1 ? std::to_string(duration) : "") << ";\n";
-        file.close();
-    }
-    else
-    {
-        // std::cerr << "Unable to open file for writing CDR.\n";
-        LOG(WARNING) << "Unable to open file for writing CDR: " << cdrLogFileName;
-    }
+                << (duration != -1 ? std::to_string(duration) : "") << ";";
 }
 
-std::string CallDetailRecord::formatDateTime(const std::chrono::system_clock::time_point& time)
+std::string CallDetailRecord::_formatDateTime(const std::chrono::system_clock::time_point& time)
 {
     auto time_t = std::chrono::system_clock::to_time_t(time);
     std::tm tm = *std::localtime(&time_t);
