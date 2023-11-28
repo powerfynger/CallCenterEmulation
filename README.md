@@ -27,7 +27,7 @@ The behavior of the system can be configured using a JSON configuration file. Th
 * `timeRange`: The minimum and maximum amount of time in seconds required to process a call.
 * `processingDuration`: The average amount of time in seconds required to process a call.
 * `maxOperators`: The maximum number of operators allowed in the system.
-* `denyDuplicate`: "Indicates whether to deny duplicate request or replace old one.
+* `denyDuplicate`: Indicates whether to deny duplicate request or replace old one.
 
 Here is an example configuration file:
 ```json
